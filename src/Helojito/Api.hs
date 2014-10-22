@@ -11,7 +11,7 @@ import Data.Text.Encoding (encodeUtf8)
 import GHC.Generics
 import Network.Wreq
 
-import Helojito.Util
+import qualified Helojito.Options as O
 
 
 data Task = Task { name :: Text
@@ -21,11 +21,40 @@ data Task = Task { name :: Text
 instance FromJSON Task
 instance ToJSON Task
 
-apiCall :: String -> Text -> IO ()
-apiCall url token = do
+apiCall :: String -> Text -> O.Command -> IO ()
+apiCall base_url token command = do
+    let endpoint = case command of
+            O.Task O.List -> "tasks/"
+            O.Task O.Add -> "task/"
+            O.Task O.Print -> "task/"
+
+            O.Project sub -> ""
+
+    let url = base_url ++ endpoint
     let baseopts = defaults & header "Authorization" .~  ["Token " `B.append` encodeUtf8 token]
+
+    case command of
+        O.Task O.List -> printList =<< build url baseopts
+        O.Task O.Add -> printOne =<< build url baseopts
+        O.Task O.Print -> printOne =<< build url baseopts
+        O.Project _ -> error "meh"
+
+build :: FromJSON a => String -> Options -> IO a
+build url baseopts = do
     r <- getWith baseopts url
-    let ejson = eitherDecode (r ^. responseBody) :: Either String [Task]
-    case ejson of
-        Left err -> putStrLn "Malformed JSON" >> putStrLn err >> die
-        Right o -> print o
+    case eitherDecode (r ^. responseBody) of
+        Left err -> putStrLn "Malformed JSON" >> error err
+        Right o -> return o
+
+printList :: [Task] -> IO ()
+printList = mapM_ (putStrLn . simpleFormat)
+
+printOne :: Task -> IO ()
+printOne = putStrLn . moreFormat
+
+
+simpleFormat :: Task -> String
+simpleFormat (Task n _ t) = unpack $ "Task: " `append` n `append` " - Horas: " `append` (pack $ show t)
+
+moreFormat :: Task -> String
+moreFormat (Task n d t) = unpack $ "Task: " `append` n `append` "\n  Horas: " `append` (pack $ show t) `append` "\n  Descripción: " `append` d

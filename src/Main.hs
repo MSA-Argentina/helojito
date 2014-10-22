@@ -24,11 +24,7 @@ main = do
     opts <- getOptions
 
     let token' = token conf
-    let base_url = url conf
-    let action = subcommand opts
-    let endpoint = case action of
-            O.Task _ -> "tasks/"
-            O.Project _ -> "projects/"
-    let url' = T.unpack base_url ++ endpoint
+    let base_url = T.unpack $ url conf
+    let command = subcommand opts
 
-    apiCall url' token' `E.catch` httpHandler
+    apiCall base_url token' command `E.catch` httpHandler

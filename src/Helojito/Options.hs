@@ -2,6 +2,7 @@ module Helojito.Options (
     getOptions
   , Options(..)
   , Command(..)
+  , CommandOpts(..)
 ) where
 
 import Options.Applicative
@@ -12,7 +13,7 @@ data Options = Options
     , verbose :: Bool }
 
 data Command = Task CommandOpts | Project CommandOpts
-data CommandOpts = List | Add
+data CommandOpts = List | Add | Print
 
 getOptions :: IO Options
 getOptions = customExecParser (prefs showHelpOnError) optsParserInfo
@@ -41,5 +42,7 @@ subOptsParser :: Parser CommandOpts
 subOptsParser = subparser (
                    (command "list"
                             (info (helper <*> pure List) (progDesc "list elements")))
+                <> (command "show"
+                            (info (helper <*> pure Print) (progDesc "show element")))
                 <> (command "add"
                      (info (helper <*> pure Add) (progDesc "add element"))))
