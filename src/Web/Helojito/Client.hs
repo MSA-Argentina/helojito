@@ -8,28 +8,28 @@ module Web.Helojito.Client
        , buildHJRequest
        , Helojito
        , HelojitoError (..)
+       , ConnConf      (..)
        ) where
 
 import           Data.Aeson                 hiding (Result)
-import           Data.Aeson.Parser          (value)
-import           Data.Attoparsec.ByteString (parseOnly)
-import           Data.Either                (rights)
+import           Data.ByteString            (ByteString)
+import           Data.Word                  (Word16)
 import           Control.Monad.Trans.Either
-import           Control.Exception          (try, SomeException)
+import           Control.Exception          (catch, SomeException)
+import           Control.Lens
 
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Trans.Class  (lift)
-import           Control.Monad.Trans.Reader (ReaderT, ask, runReaderT)
+import           Control.Monad.Trans.Reader (ReaderT, asks, runReaderT)
 import           Data.Monoid                ((<>))
-import qualified Data.Text.Encoding         as T
-import           Data.Text                  (Text)
-import           Network.Http.Client
-import qualified System.IO.Streams          as Streams
+import           Data.Text                  (Text, unpack)
+import           Network.Wreq
+import           Network.HTTP.Client        (HttpException(..))
 import Debug.Trace
 
 ------------------------------------------------------------------------------
 -- | Core Type
-type Helojito a = EitherT HelojitoError (ReaderT Connection IO) a
+type Helojito a = EitherT HelojitoError (ReaderT (String, ByteString) IO) a
 
 ------------------------------------------------------------------------------
 -- | Error Types
@@ -40,38 +40,30 @@ data HelojitoError =
   | RequestError
   deriving (Show, Eq)
 
+data ConnConf = ConnConf { token :: ByteString
+                         , apiurl :: String }
+
 ------------------------------------------------------------------------------
 -- | Helojito API request method
-runHelojito :: FromJSON a => Helojito a -> IO (Either HelojitoError a)
-runHelojito requests = do
-    con <- try (openConnection "localhost" 8090) :: IO (Either SomeException Connection)
-    case con of
-     Left e -> trace (show e) $ return $ Left ConnectionError
-     Right conn -> do
-       result <- flip runReaderT conn $ runEitherT requests
-       closeConnection conn
-       return result
+runHelojito :: FromJSON a => Helojito a -> ConnConf -> IO (Either HelojitoError a)
+runHelojito requests (ConnConf t u) = do
+   result <- flip runReaderT (u, t) $ runEitherT requests
+   return result
 
 ------------------------------------------------------------------------------
 -- | Request Builder for API
 buildHJRequest :: FromJSON a => Text -> Helojito a
 buildHJRequest url = do
-    con <- lift ask
-    bytes <- liftIO $ do
-      req <- buildRequest $ do
-        http GET $ "/v0/" <> T.encodeUtf8 url <> ".json"
-        setHeader "Connection" "Keep-Alive"
-        setAccept "application/json"
-      sendRequest con req emptyBody
-      receiveResponse con $ const Streams.read
-    case bytes of
-      Nothing -> left RequestError
-      Just bs -> do
-        liftIO $ print bs
-        let xs = rights [parseOnly value bs, parseOnly json bs]
-        case xs of
-          []    -> left ParseError
-          x : _ ->
-            case fromJSON x of
-             Success jsonBody -> right jsonBody
-             _                -> left NotFound
+    base' <- lift . asks $ fst
+    token' <- lift . asks $ snd
+
+    let opts = defaults & header "Authorization" .~ ["Token " <> token']
+
+    r <- liftIO $ getWith opts $ base' ++ unpack url
+
+    case eitherDecode (r ^. responseBody) of
+        Left _ -> left ParseError
+        Right o -> right o
+
+handleHttpError e = case e of
+    FailedConnectionException2 _ _ _ _ -> left ConnectionError

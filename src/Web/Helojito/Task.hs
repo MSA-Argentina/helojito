@@ -22,22 +22,29 @@ data Task = Task {
   , taskName :: Text
   } deriving (Show)
 
+data TaskList = TaskList [Task] deriving (Show)
+
 ------------------------------------------------------------------------------
 -- | ID for a `Task` type
-newtype TaskId
-      = TaskId Int
-      deriving (Show, Eq)
+newtype TaskId = TaskId Int deriving (Show, Eq)
+data TaskListId = TaskListId deriving (Show, Eq)
 
 ------------------------------------------------------------------------------
 -- | Endpoint Instances
 instance Endpoint TaskId Task where
-    endpoint (TaskId id') = "task/" `append` toText id'
+    endpoint (TaskId id') = "tasks/" `append` toText id' `append` "/"
+
+instance Endpoint TaskListId TaskList where
+    endpoint _ = "tasks/"
 
 ------------------------------------------------------------------------------
 -- | JSON Instances
 instance FromJSON Task where
   parseJSON (Object o) =
       Task <$> (TaskId <$> o .: "id")
-           <*> o .: "name"
            <*> o .: "total_hours"
+           <*> o .: "name"
   parseJSON _ = mzero
+
+instance FromJSON TaskList where
+  parseJSON = fmap TaskList . parseJSON

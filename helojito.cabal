@@ -22,17 +22,17 @@ library
                      , Web.Helojito.Util
                      , Web.Helojito.Endpoint
   hs-source-dirs:      src
-  build-depends:       HsOpenSSL    >= 0.10
-                     , aeson        >= 0.8
+  build-depends:       aeson        >= 0.8
                      , attoparsec   >= 0.12
                      , base         >= 4.7 && <5
                      , bytestring   >= 0.10
                      , either       >= 4.3
-                     , http-streams >= 0.7
-                     , io-streams   >= 1.1
                      , text         >= 1.2
                      , time         >= 1.4
                      , transformers >= 0.3
+                     , wreq         >= 0.2
+                     , lens         >= 4.4
+                     , http-client  >= 0.4
   default-language:    Haskell2010
 
 executable helojito
@@ -40,19 +40,20 @@ executable helojito
   hs-source-dirs:      src
   -- other-modules:       
   -- other-extensions:    
-  ghc-options:         -Wall -O2 -static -optc-static -threaded -rtsopts
+  ghc-options:         -Wall -O2  -threaded -rtsopts
   default-language:    Haskell2010
-  build-depends:       base >= 4.7 && <5
-                     , directory >= 1.0
+  build-depends:       base         >= 4.7 && <5
+                     , directory    >= 1.0
                      , optparse-applicative >= 0.10
-                     , helojito
                      , HsOpenSSL    >= 0.10
                      , aeson        >= 0.8
                      , attoparsec   >= 0.12
                      , bytestring   >= 0.10
                      , either       >= 4.3
-                     , http-streams >= 0.7
-                     , io-streams   >= 1.1
                      , text         >= 1.2
                      , time         >= 1.4
                      , transformers >= 0.3
+                     , wreq         >= 0.2
+                     , lens         >= 4.4
+                     , http-client  >= 0.4
+                     , helojito

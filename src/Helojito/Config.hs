@@ -11,7 +11,7 @@ import GHC.Generics
 import System.Directory
 
 data Config = Config { token :: !Text
-                     , url :: !Text } deriving (Show, Generic)
+                     , apiurl :: !Text } deriving (Show, Generic)
 
 instance FromJSON Config
 instance ToJSON Config

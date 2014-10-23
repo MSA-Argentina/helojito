@@ -8,26 +8,28 @@ module Web.Helojito
          runHelojito
          -- * API Calls
        , getTask
-       --, getTasks
+       , getTasks
        , getProject
          -- * Types
        , Helojito
        , HelojitoError (..)
+       , ConnConf      (..)
        , Task          (..)
        , TaskId        (..)
-       --, TaskList
+       , TaskList
+       , TaskListId
        , Project       (..)
        , ProjectId     (..)
        ) where
 
 import           Web.Helojito.Types
-import           Web.Helojito.Client (Helojito, runHelojito, HelojitoError(..))
+import           Web.Helojito.Client (Helojito, runHelojito, ConnConf(..), HelojitoError(..))
 
 getTask :: TaskId -> Helojito Task
 getTask = getEndpoint
 
---getTasks :: Helojito TaskList
---getTasks = getEndpoint
+getTasks :: Helojito TaskList
+getTasks = getEndpoint TaskListId
 
 getProject :: ProjectId -> Helojito Project
 getProject = getEndpoint

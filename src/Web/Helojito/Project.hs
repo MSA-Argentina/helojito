@@ -31,7 +31,7 @@ newtype ProjectId
 ------------------------------------------------------------------------------
 -- | Endpoint Instances
 instance Endpoint ProjectId Project where
-    endpoint (ProjectId id') = "project/" `append` toText id'
+    endpoint (ProjectId id') = "project/" `append` toText id' `append` "/"
 
 ------------------------------------------------------------------------------
 -- | JSON Instances
