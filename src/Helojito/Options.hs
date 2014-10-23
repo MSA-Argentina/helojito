@@ -1,8 +1,8 @@
 module Helojito.Options (
     getOptions
-  , Options(..)
-  , Command(..)
-  , CommandOpts(..)
+  , Options     (..)
+  , Command     (..)
+  , CommandOpts (..)
 ) where
 
 import Options.Applicative
