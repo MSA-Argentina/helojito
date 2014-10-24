@@ -13,9 +13,8 @@ module Web.Helojito.Client
 
 import           Data.Aeson                 hiding (Result)
 import           Data.ByteString            (ByteString)
-import           Data.Word                  (Word16)
 import           Control.Monad.Trans.Either
-import           Control.Exception          (catch, SomeException)
+import           Control.Exception          (try, SomeException)
 import           Control.Lens
 
 import           Control.Monad.IO.Class     (liftIO)
@@ -24,9 +23,9 @@ import           Control.Monad.Trans.Reader (ReaderT, asks, runReaderT)
 import           Data.Monoid                ((<>))
 import           Data.Text                  (Text, unpack)
 import           Network.Wreq
-import           Network.HTTP.Client        (HttpException(..))
-import Debug.Trace
 
+
+import Debug.Trace
 ------------------------------------------------------------------------------
 -- | Core Type
 type Helojito a = EitherT HelojitoError (ReaderT (String, ByteString) IO) a
@@ -37,7 +36,6 @@ data HelojitoError =
     ConnectionError
   | ParseError
   | NotFound
-  | RequestError
   deriving (Show, Eq)
 
 data ConnConf = ConnConf { token :: ByteString
@@ -46,9 +44,7 @@ data ConnConf = ConnConf { token :: ByteString
 ------------------------------------------------------------------------------
 -- | Helojito API request method
 runHelojito :: FromJSON a => Helojito a -> ConnConf -> IO (Either HelojitoError a)
-runHelojito requests (ConnConf t u) = do
-   result <- flip runReaderT (u, t) $ runEitherT requests
-   return result
+runHelojito requests (ConnConf t u) = flip runReaderT (u, t) $ runEitherT requests
 
 ------------------------------------------------------------------------------
 -- | Request Builder for API
@@ -59,11 +55,13 @@ buildHJRequest url = do
 
     let opts = defaults & header "Authorization" .~ ["Token " <> token']
 
-    r <- liftIO $ getWith opts $ base' ++ unpack url
+    er <- safeIO $ getWith opts $ base' ++ unpack url
 
-    case eitherDecode (r ^. responseBody) of
-        Left _ -> left ParseError
-        Right o -> right o
+    case er of
+        Left da -> trace (show da) $ left ConnectionError
+        Right r -> case eitherDecode (r ^. responseBody) of
+                       Left _ -> left ParseError
+                       Right o -> right o
 
-handleHttpError e = case e of
-    FailedConnectionException2 _ _ _ _ -> left ConnectionError
+safeIO :: IO a -> Helojito (Either SomeException a)
+safeIO action = liftIO $ try action

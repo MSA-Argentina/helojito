@@ -20,6 +20,8 @@ data Task = Task {
     taskId :: TaskId
   , taskHours :: Float
   , taskName :: Text
+  , taskProject :: Int
+  , taskDescription :: Text
   } deriving (Show)
 
 data TaskList = TaskList [Task] deriving (Show)
@@ -44,6 +46,8 @@ instance FromJSON Task where
       Task <$> (TaskId <$> o .: "id")
            <*> o .: "total_hours"
            <*> o .: "name"
+           <*> o .: "project"
+           <*> o .: "description"
   parseJSON _ = mzero
 
 instance FromJSON TaskList where

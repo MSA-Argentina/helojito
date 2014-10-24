@@ -16,7 +16,7 @@ module Web.Helojito
        , ConnConf      (..)
        , Task          (..)
        , TaskId        (..)
-       , TaskList
+       , TaskList      (..)
        , TaskListId
        , Project       (..)
        , ProjectId     (..)
