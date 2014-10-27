@@ -18,20 +18,26 @@ import           Web.Helojito.Util       (toText)
 -- | Types
 data Project = Project {
     projectId :: ProjectId
-  , projectHours :: Float
   , projectName :: Text
+  , projectDescription :: Text
   } deriving (Show)
+
+data ProjectList = ProjectList [Project] deriving (Show)
 
 ------------------------------------------------------------------------------
 -- | ID for a `Project` type
 newtype ProjectId
       = ProjectId Int
       deriving (Show, Eq)
+data ProjectListId = ProjectListId deriving (Show, Eq)
 
 ------------------------------------------------------------------------------
 -- | Endpoint Instances
 instance Endpoint ProjectId Project where
     endpoint (ProjectId id') = "project/" `append` toText id' `append` "/"
+
+instance Endpoint ProjectListId ProjectList where
+    endpoint _ = "projects/"
 
 ------------------------------------------------------------------------------
 -- | JSON Instances
@@ -39,5 +45,8 @@ instance FromJSON Project where
   parseJSON (Object o) =
       Project <$> (ProjectId <$> o .: "id")
            <*> o .: "name"
-           <*> o .: "total_hours"
+           <*> o .: "description"
   parseJSON _ = mzero
+
+instance FromJSON ProjectList where
+  parseJSON = fmap ProjectList . parseJSON

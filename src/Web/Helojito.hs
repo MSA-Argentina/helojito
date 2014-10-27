@@ -9,7 +9,7 @@ module Web.Helojito
          -- * API Calls
        , getTask
        , getTasks
-       , getProject
+       , getProjects
          -- * Types
        , Helojito
        , HelojitoError (..)
@@ -20,6 +20,8 @@ module Web.Helojito
        , TaskListId
        , Project       (..)
        , ProjectId     (..)
+       , ProjectList   (..)
+       , ProjectListId
        ) where
 
 import           Web.Helojito.Types
@@ -31,5 +33,5 @@ getTask = getEndpoint
 getTasks :: Helojito TaskList
 getTasks = getEndpoint TaskListId
 
-getProject :: ProjectId -> Helojito Project
-getProject = getEndpoint
+getProjects :: Helojito ProjectList
+getProjects = getEndpoint ProjectListId

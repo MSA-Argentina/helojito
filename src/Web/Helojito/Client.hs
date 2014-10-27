@@ -14,7 +14,7 @@ module Web.Helojito.Client
 import           Data.Aeson                 hiding (Result)
 import           Data.ByteString            (ByteString)
 import           Control.Monad.Trans.Either
-import           Control.Exception          (try, SomeException)
+import           Control.Exception          (try)
 import           Control.Lens
 
 import           Control.Monad.IO.Class     (liftIO)
@@ -23,6 +23,7 @@ import           Control.Monad.Trans.Reader (ReaderT, asks, runReaderT)
 import           Data.Monoid                ((<>))
 import           Data.Text                  (Text, unpack)
 import           Network.Wreq
+import           Network.HTTP.Client        (HttpException)
 
 
 import Debug.Trace
@@ -33,10 +34,10 @@ type Helojito a = EitherT HelojitoError (ReaderT (String, ByteString) IO) a
 ------------------------------------------------------------------------------
 -- | Error Types
 data HelojitoError =
-    ConnectionError
+    ConnectionError HttpException
   | ParseError
   | NotFound
-  deriving (Show, Eq)
+  deriving (Show)
 
 data ConnConf = ConnConf { token :: ByteString
                          , apiurl :: String }
@@ -58,10 +59,10 @@ buildHJRequest url = do
     er <- safeIO $ getWith opts $ base' ++ unpack url
 
     case er of
-        Left da -> trace (show da) $ left ConnectionError
+        Left da -> left $ ConnectionError da
         Right r -> case eitherDecode (r ^. responseBody) of
                        Left _ -> left ParseError
                        Right o -> right o
 
-safeIO :: IO a -> Helojito (Either SomeException a)
+safeIO :: IO a -> Helojito (Either HttpException a)
 safeIO action = liftIO $ try action

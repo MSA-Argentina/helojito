@@ -5,7 +5,6 @@ module Helojito.Options (
   , CommandOpts (..)
 ) where
 
-import Safe                (readMay)
 import Options.Applicative
 
 
@@ -14,7 +13,7 @@ data Options = Options
     , verbose :: Bool }
 
 data Command = TaskCommand CommandOpts | ProjectCommand CommandOpts
-data CommandOpts = List | Add | Print (Maybe Int)
+data CommandOpts = List | Add | Print Int
 
 getOptions :: IO Options
 getOptions = customExecParser (prefs showHelpOnError) optsParserInfo
@@ -49,4 +48,10 @@ subOptsParser = subparser (
                      (info (helper <*> pure Add) (progDesc "add element")))
 
 printParser :: Parser CommandOpts
-printParser = Print . readMay <$> argument str (metavar "TASK ID")
+printParser = Print <$> argument intOption  (metavar "TASK_ID")
+
+intOption :: ReadM Int
+intOption = eitherReader $ \arg -> case reads arg of
+    [(r, "")] -> return r
+    _       -> Left $ "Cannot parse Int `" ++ arg ++ "'"
+

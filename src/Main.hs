@@ -13,3 +13,4 @@ main = do
         TaskCommand List -> listTasks conf
         TaskCommand (Print n) -> showTask conf n
         TaskCommand Add -> addTask conf
+        ProjectCommand List -> listProjects conf

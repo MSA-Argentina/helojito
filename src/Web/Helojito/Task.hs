@@ -12,6 +12,7 @@ import           Data.Aeson              (FromJSON (parseJSON), Value (Object), 
 import           Data.Text               (Text, append)
 
 import           Web.Helojito.Endpoint   (Endpoint (endpoint))
+import           Web.Helojito.Project    (ProjectId(..))
 import           Web.Helojito.Util       (toText)
 
 ------------------------------------------------------------------------------
@@ -20,7 +21,7 @@ data Task = Task {
     taskId :: TaskId
   , taskHours :: Float
   , taskName :: Text
-  , taskProject :: Int
+  , taskProject :: ProjectId
   , taskDescription :: Text
   } deriving (Show)
 
@@ -46,7 +47,7 @@ instance FromJSON Task where
       Task <$> (TaskId <$> o .: "id")
            <*> o .: "total_hours"
            <*> o .: "name"
-           <*> o .: "project"
+           <*> (ProjectId <$> o .: "project")
            <*> o .: "description"
   parseJSON _ = mzero
 
