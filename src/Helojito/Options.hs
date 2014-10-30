@@ -2,56 +2,124 @@ module Helojito.Options (
     getOptions
   , Options     (..)
   , Command     (..)
-  , CommandOpts (..)
+  , TaskOpts    (..)
 ) where
 
 import Options.Applicative
 
 
-data Options = Options
-    { subcommand :: Command
-    , verbose :: Bool }
+type Name = String
+type Hours = Float
+type Project = Int
+type Type = Int
+type Solved = Int
+type Description = String
+type Date = String
 
-data Command = TaskCommand CommandOpts | ProjectCommand CommandOpts
-data CommandOpts = List | Add | Print Int
+data Options = Options
+    { subcommand :: Command }
+    deriving (Show)
+
+data Command =
+    TaskCommand TaskOpts
+  | ProjectCommand ProjectOpts
+  | ResCommand ResOpts
+  | TaskTypeCommand TaskTypeOpts
+    deriving (Show)
+
+data TaskOpts =
+    TaskList
+  | TaskAdd Name Hours Project Type Solved Description Date
+  | TaskPrint Int
+    deriving (Show)
+
+data ProjectOpts = ProjectList deriving (Show)
+data ResOpts = ResList deriving (Show)
+data TaskTypeOpts = TaskTypeList deriving (Show)
 
 getOptions :: IO Options
 getOptions = customExecParser (prefs showHelpOnError) optsParserInfo
 
 optsParserInfo :: ParserInfo Options
-optsParserInfo = info (helper <*> optsParser) (fullDesc <> progDesc "Relojito CLI utility")
+optsParserInfo = info optsParser (fullDesc <> progDesc "Relojito CLI tool")
 
 optsParser :: Parser Options
 optsParser = Options
     <$> subparser (
           command "task"
-              (info (helper <*> taskParser) (progDesc "list/add tasks"))
+              (info taskParser (progDesc "operate on tasks"))
        <> command "project"
-              (info (helper <*> projectParser) (progDesc "list projects")))
-    <*> switch
-          (long "verbose"
-        <> help "Be loud")
+              (info projectParser (progDesc "operate on projects"))
+       <> command "type"
+              (info typeParser (progDesc "operate on task types"))
+       <> command "resolution"
+              (info resParser (progDesc "operate on resolution types")))
 
 taskParser :: Parser Command
-taskParser = TaskCommand <$> subOptsParser
+taskParser = TaskCommand <$> taskOptsParser
 
 projectParser :: Parser Command
-projectParser = ProjectCommand <$> subOptsParser
+projectParser = ProjectCommand <$> projectOptsParser
 
-subOptsParser :: Parser CommandOpts
-subOptsParser = subparser (
+resParser :: Parser Command
+resParser = ResCommand <$> resOptsParser
+
+typeParser :: Parser Command
+typeParser = TaskTypeCommand <$> typeOptsParser
+
+projectOptsParser :: Parser ProjectOpts
+projectOptsParser = subparser (
+                      command "list"
+                               (info (pure ProjectList) (progDesc "list elements")))
+
+resOptsParser :: Parser ResOpts
+resOptsParser = subparser (
+                      command "list"
+                               (info (pure ResList) (progDesc "list elements")))
+
+typeOptsParser :: Parser TaskTypeOpts
+typeOptsParser = subparser (
+                      command "list"
+                               (info (pure TaskTypeList) (progDesc "list elements")))
+
+taskOptsParser :: Parser TaskOpts
+taskOptsParser = subparser (
                    command "list"
-                            (info (helper <*> pure List) (progDesc "list elements"))
+                            (info (pure TaskList) (progDesc "list tasks"))
                 <> command "show"
-                            (info (helper <*> printParser) (progDesc "show element"))
+                            (info printParser (progDesc "show task information"))
                 <> command "add"
-                     (info (helper <*> pure Add) (progDesc "add element")))
+                     (info addParser (progDesc "add a task")))
 
-printParser :: Parser CommandOpts
-printParser = Print <$> argument intOption  (metavar "TASK_ID")
+addParser :: Parser TaskOpts
+addParser = TaskAdd <$> strOption (long "name"
+                                  <> short 'n'
+                                  <> metavar "NAME")
+                    <*> option (num :: ReadM Float) (long "hours"
+                               <> short 't'
+                               <> metavar "HOURS")
+                    <*> option (num :: ReadM Int) (long "project"
+                               <> short 'p'
+                               <> metavar "PROJECT_ID")
+                    <*> option (num :: ReadM Int) (long "type"
+                               <> short 'y'
+                               <> metavar "TASK_TYPE_ID")
+                    <*> option (num :: ReadM Int) (long "resolve"
+                               <> short 'r'
+                               <> metavar "RESOLVED_AS_ID")
+                    <*> strOption (long "description"
+                               <> short 'd'
+                               <> metavar "DESCRIPTION"
+                               <> value "")
+                    <*> strOption (long "date"
+                               <> short 'w'
+                               <> metavar "DATE"
+                               <> value "")
 
-intOption :: ReadM Int
-intOption = eitherReader $ \arg -> case reads arg of
+printParser :: Parser TaskOpts
+printParser = TaskPrint <$> argument (num :: ReadM Int)  (metavar "TASK_ID")
+
+num :: (Read a, Num a) => ReadM a
+num = eitherReader $ \arg -> case reads arg of
     [(r, "")] -> return r
-    _       -> Left $ "Cannot parse Int `" ++ arg ++ "'"
-
+    _       -> Left $ "cannot parse number '" ++ arg ++ "'"

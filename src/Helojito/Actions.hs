@@ -1,57 +1,58 @@
 module Helojito.Actions (
     listProjects
   , listTasks
+  , listResolutions
+  , listTaskTypes
   , showTask
   , addTask
 ) where
 
 import           Control.Applicative
+import           Data.Aeson          (FromJSON)
 import           Data.Text           (unpack)
 import           Data.Text.Encoding  (encodeUtf8)
 import           Web.Helojito
-import           Network.HTTP.Client (HttpException(..))
 import           Helojito.Config
 import           Helojito.Printers
 import           Helojito.Util
+import           Text.PrettyPrint    (Doc)
 
 
 listProjects  :: Config -> IO ()
-listProjects c = do
-    resp <- runHelojito getProjects $ fromC c
-    case resp of
-        Left err -> handleError err >> die
-        Right (ProjectList projects) -> mapM_ (print . pSimpleProject) projects >> exit
+listProjects c = actionDispatch getProjects pSimpleProjects c
 
-addTask :: Config -> IO ()
-addTask = undefined
+listTaskTypes  :: Config -> IO ()
+listTaskTypes c = actionDispatch getTaskTypes pSimpleTaskTypes c
+
+addTask :: Task -> Config -> IO ()
+addTask task c = actionDispatch actions pExtraTask c
+  where
+    actions = ((,) <$> ptask <*> pprojects)
+    ptask = postTask task
+    pprojects = getProjects
 
 listTasks  :: Config -> IO ()
-listTasks c = do
-    resp <- runHelojito getTasks $ fromC c
-    case resp of
-        Left err -> handleError err >> die
-        Right (TaskList tasks) -> mapM_ (print . pSimpleTask) tasks >> exit
+listTasks c = actionDispatch getTasks pSimpleTasks c
 
-showTask  :: Config -> Int -> IO ()
-showTask c id' = do
-    resp <- runHelojito ((,) <$> ptask <*> pprojects) $ fromC c
-    case resp of
-        Left err -> handleError err >> die
-        Right (task, projects) -> print (pExtraTask task projects) >> exit
+showTask  :: Int -> Config -> IO ()
+showTask id' c = actionDispatch actions pExtraTask c
   where
+    actions = ((,) <$> ptask <*> pprojects)
     ptask = getTask $ TaskId id'
     pprojects = getProjects
 
-fromC :: Config -> ConnConf
-fromC (Config t u) = ConnConf (encodeUtf8 t)
-                              (unpack u)
+listResolutions  :: Config -> IO ()
+listResolutions c = actionDispatch getResolutions pSimpleResolutions c
 
-handleError :: HelojitoError -> IO ()
-handleError (ConnectionError e) = handleHttp e
-handleError e = print e
-
-
-handleHttp :: HttpException -> IO ()
-handleHttp (StatusCodeException status response cookie) = print status
-handleHttp (FailedConnectionException2 host port _ _) = putStrLn $ "Connection refused with " ++ host ++ ":" ++ show port ++ ", is the server running?"
-handleHttp e = print e
+actionDispatch :: FromJSON a => Helojito a -> (a -> Doc) -> Config -> IO ()
+actionDispatch actions doc conf = do
+    resp <- runHelojito actions $ fromC conf
+    case resp of
+        Left err -> handleError err >> die
+        Right stuff -> print (doc stuff) >> exit
+  where
+    fromC (Config t u) = ConnConf (encodeUtf8 t)
+                                  (unpack u)
+    handleError e = case e of
+                        (ConnectionError s) -> putStrLn s
+                        _ ->  print e

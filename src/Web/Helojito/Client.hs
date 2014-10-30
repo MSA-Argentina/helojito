@@ -13,6 +13,7 @@ module Web.Helojito.Client
 
 import           Data.Aeson                 hiding (Result)
 import           Data.ByteString            (ByteString)
+import qualified Data.ByteString.Char8      as B (unpack)
 import           Control.Monad.Trans.Either
 import           Control.Exception          (try)
 import           Control.Lens
@@ -20,13 +21,13 @@ import           Control.Lens
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Reader (ReaderT, asks, runReaderT)
+import           Data.Maybe                 (fromMaybe)
 import           Data.Monoid                ((<>))
 import           Data.Text                  (Text, unpack)
 import           Network.Wreq
-import           Network.HTTP.Client        (HttpException)
+import           Network.HTTP.Client        (HttpException(..))
 
 
-import Debug.Trace
 ------------------------------------------------------------------------------
 -- | Core Type
 type Helojito a = EitherT HelojitoError (ReaderT (String, ByteString) IO) a
@@ -34,7 +35,7 @@ type Helojito a = EitherT HelojitoError (ReaderT (String, ByteString) IO) a
 ------------------------------------------------------------------------------
 -- | Error Types
 data HelojitoError =
-    ConnectionError HttpException
+    ConnectionError String
   | ParseError
   | NotFound
   deriving (Show)
@@ -49,20 +50,29 @@ runHelojito requests (ConnConf t u) = flip runReaderT (u, t) $ runEitherT reques
 
 ------------------------------------------------------------------------------
 -- | Request Builder for API
-buildHJRequest :: FromJSON a => Text -> Helojito a
-buildHJRequest url = do
+buildHJRequest :: FromJSON a => Maybe Value -> Text -> Helojito a
+buildHJRequest mjson_data url = do
     base' <- lift . asks $ fst
     token' <- lift . asks $ snd
+    let action = base' ++ unpack url
 
     let opts = defaults & header "Authorization" .~ ["Token " <> token']
 
-    er <- safeIO $ getWith opts $ base' ++ unpack url
+    er <- safeIO $ case mjson_data of
+        Nothing -> getWith opts action
+        Just json_data -> postWith opts action json_data
 
     case er of
-        Left da -> left $ ConnectionError da
+        Left da -> left $ ConnectionError $ handleHttp da
         Right r -> case eitherDecode (r ^. responseBody) of
                        Left _ -> left ParseError
                        Right o -> right o
 
 safeIO :: IO a -> Helojito (Either HttpException a)
-safeIO action = liftIO $ try action
+safeIO io = liftIO $ try io
+
+
+handleHttp :: HttpException -> String
+handleHttp (StatusCodeException status response _) = show status ++ " - " ++ B.unpack (fromMaybe "" $ lookup "X-Response-Body-Start" response)
+handleHttp (FailedConnectionException2 host port _ some) = "Connection refused with " ++ host ++ ":" ++ show port ++ ", is the server running? Extra: " ++ show some
+handleHttp e = show e
