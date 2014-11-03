@@ -60,7 +60,10 @@ List projects, resolutions and types:
 > helojito resolution list
 ```
 
-## Installing GHC on Ubuntu
-Just do as Chris Done says:
+## Bash Completion
+helojito --bash-completion-script helojito >> ~/.bash_completion
 
-http://new-www.haskell.org/downloads/linux
+## Installing GHC on Ubuntu
+GHC is too fast for Ubuntu repositories:
+
+http://haskell-lang.org/downloads/linux
