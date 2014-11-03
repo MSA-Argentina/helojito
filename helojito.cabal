@@ -19,6 +19,8 @@ library
   other-modules:       Web.Helojito.Types
                      , Web.Helojito.Client
                      , Web.Helojito.Task
+                     , Web.Helojito.TaskType
+                     , Web.Helojito.Resolution
                      , Web.Helojito.Project
                      , Web.Helojito.Util
                      , Web.Helojito.Endpoint
@@ -37,22 +39,15 @@ library
 
 executable helojito
   main-is:             Main.hs
-  hs-source-dirs:      src
+  hs-source-dirs:      src-main
   ghc-options:         -Wall -O2 -threaded
   --ld-options:          -static -pthread
   default-language:    Haskell2010
   build-depends:       base         >= 4.7 && <5
                      , directory    >= 1.0
                      , optparse-applicative >= 0.10
-                     , HsOpenSSL    >= 0.10
                      , aeson        >= 0.8
-                     , attoparsec   >= 0.12
                      , bytestring   >= 0.10
-                     , either       >= 4.3
                      , text         >= 1.2
-                     , transformers >= 0.3
-                     , wreq         >= 0.2
-                     , lens         >= 4.4
-                     , http-client  >= 0.4
                      , pretty       >= 1.0
                      , helojito

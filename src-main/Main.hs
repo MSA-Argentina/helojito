@@ -1,10 +1,10 @@
 module Main where
 
-import           Data.Text          (pack)
+import           Data.Text        (pack)
 import           Helojito.Actions
 import           Helojito.Options
 import           Helojito.Config
-import qualified Web.Helojito.Types as H
+import qualified Web.Helojito     as H
 
 
 main :: IO ()
