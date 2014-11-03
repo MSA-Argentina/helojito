@@ -96,13 +96,13 @@ addParser = TaskAdd <$> strOption (long "name"
                                   <> short 'n'
                                   <> metavar "NAME")
                     <*> option (num :: ReadM Float) (long "hours"
-                               <> short 't'
+                               <> short 'h'
                                <> metavar "HOURS")
                     <*> option (num :: ReadM Int) (long "project"
                                <> short 'p'
                                <> metavar "PROJECT_ID")
                     <*> option (num :: ReadM Int) (long "type"
-                               <> short 'y'
+                               <> short 't'
                                <> metavar "TASK_TYPE_ID")
                     <*> optional (option (num :: ReadM Int) (long "resolve"
                                          <> short 'r'
@@ -111,7 +111,7 @@ addParser = TaskAdd <$> strOption (long "name"
                                <> short 'd'
                                <> metavar "DESCRIPTION"
                                <> value "")
-                    <*> strOption (long "date"
+                    <*> strOption (long "when"
                                <> short 'w'
                                <> metavar "DATE"
                                <> value "")
