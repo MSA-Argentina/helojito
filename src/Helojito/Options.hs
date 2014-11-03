@@ -12,7 +12,7 @@ type Name = String
 type Hours = Float
 type Project = Int
 type Type = Int
-type Solved = Int
+type Solved = Maybe Int
 type Description = String
 type Date = String
 
@@ -104,9 +104,9 @@ addParser = TaskAdd <$> strOption (long "name"
                     <*> option (num :: ReadM Int) (long "type"
                                <> short 'y'
                                <> metavar "TASK_TYPE_ID")
-                    <*> option (num :: ReadM Int) (long "resolve"
-                               <> short 'r'
-                               <> metavar "RESOLVED_AS_ID")
+                    <*> optional (option (num :: ReadM Int) (long "resolve"
+                                         <> short 'r'
+                                         <> metavar "RESOLVED_AS_ID"))
                     <*> strOption (long "description"
                                <> short 'd'
                                <> metavar "DESCRIPTION"

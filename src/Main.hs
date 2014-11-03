@@ -22,4 +22,4 @@ main = do
 
 taskBuilder :: TaskOpts -> H.Task
 taskBuilder (TaskAdd n h p t s d w) =
-    H.Task (H.TaskId 99) (pack n) h (H.ProjectId p) t (Just s) (pack d) (pack w)
+    H.Task (H.TaskId 99) (pack n) h (H.ProjectId p) t s (pack d) (pack w)
