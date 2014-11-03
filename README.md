@@ -59,3 +59,8 @@ List projects, resolutions and types:
 > helojito project list
 > helojito resolution list
 ```
+
+## Installing GHC on Ubuntu
+Just do as Chris Done says:
+
+http://new-www.haskell.org/downloads/linux
