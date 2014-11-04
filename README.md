@@ -61,7 +61,7 @@ List projects, resolutions and types:
 ```
 
 ## Bash Completion
-helojito --bash-completion-script helojito >> ~/.bash_completion
+`helojito --bash-completion-script helojito >> ~/.bash_completion`
 
 ## Installing GHC on Ubuntu
 GHC is too fast for Ubuntu repositories:
