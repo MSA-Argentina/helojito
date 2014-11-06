@@ -34,12 +34,6 @@ Listing tasks:
 81 - another bar: 4.5hs - 2014-10-15
 ```
 
-Adding tasks:
-
-```
-> helojito task add -n "title baz" -t 2.5 -p 1 -y 1 -r 1 -d "description something" -w "2014-04-31"
-```
-
 Task details:
 
 ```
@@ -50,6 +44,18 @@ Project: Some Project
 Description:
 Date: 2014-10-14
 Hours Worked On: 8.0
+```
+
+Adding a task:
+
+```
+> helojito task add -n "title baz" -t 2.5 -p 1 -y 1 -r 1 -d "description something" -w "2014-04-31"
+```
+
+Updating a task:
+
+```
+> helojito task mod 5 -n "new title" -h 1.5
 ```
 
 List projects, resolutions and types:
@@ -64,6 +70,6 @@ List projects, resolutions and types:
 `helojito --bash-completion-script helojito >> ~/.bash_completion`
 
 ## Installing GHC on Ubuntu
-GHC is too fast for Ubuntu repositories:
+Desirable because GHC may be too fast for official Ubuntu repositories:
 
 http://haskell-lang.org/downloads/linux
