@@ -1,6 +1,6 @@
 Helojito
 ========
-Relojito CLI Tool
+[Relojito](https://github.com/MSA-Argentina/relojito) CLI Tool
 
 # Installation
 git clone this repo and then simply:
