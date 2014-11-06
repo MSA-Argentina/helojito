@@ -21,7 +21,10 @@ class Endpoint id resp | id -> resp where
 ------------------------------------------------------------------------------
 -- | Generic function for making requests
 getEndpoint :: (Endpoint a b, FromJSON b) => a -> Helojito b
-getEndpoint id' = buildHJRequest Nothing $ endpoint id'
+getEndpoint id' = buildHJRequest False Nothing $ endpoint id'
 
 postEndpoint :: (Endpoint a b, FromJSON b, ToJSON b) => a -> b -> Helojito b
-postEndpoint id' value = buildHJRequest (Just $ toJSON value) $ endpoint id'
+postEndpoint id' value = buildHJRequest False (Just $ toJSON value) $ endpoint id'
+
+putEndpoint :: (Endpoint a b, FromJSON b, ToJSON b) => a -> b -> Helojito b
+putEndpoint id' value = buildHJRequest True (Just $ toJSON value) $ endpoint id'

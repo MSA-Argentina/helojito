@@ -50,8 +50,8 @@ runHelojito requests (ConnConf t u) = flip runReaderT (u, t) $ runEitherT reques
 
 ------------------------------------------------------------------------------
 -- | Request Builder for API
-buildHJRequest :: FromJSON a => Maybe Value -> Text -> Helojito a
-buildHJRequest mjson_data url = do
+buildHJRequest :: FromJSON a => Bool -> Maybe Value -> Text -> Helojito a
+buildHJRequest put' mjson_data url = do
     base' <- lift . asks $ fst
     token' <- lift . asks $ snd
     let action = base' ++ unpack url
@@ -60,7 +60,9 @@ buildHJRequest mjson_data url = do
 
     er <- safeIO $ case mjson_data of
         Nothing -> getWith opts action
-        Just json_data -> postWith opts action json_data
+        Just json_data -> case put' of
+                            True -> putWith opts action json_data
+                            False -> postWith opts action json_data
 
     case er of
         Left da -> left $ ConnectionError $ handleHttp da

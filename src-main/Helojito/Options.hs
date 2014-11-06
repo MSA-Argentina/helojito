@@ -12,7 +12,7 @@ type Name = String
 type Hours = Float
 type Project = Int
 type Type = Int
-type Solved = Maybe Int
+type Solved = Int
 type Description = String
 type Date = String
 
@@ -29,7 +29,23 @@ data Command =
 
 data TaskOpts =
     TaskList
-  | TaskAdd Name Hours Project Type Solved Description Date
+  | TaskAdd
+      Name
+      Hours
+      Project
+      Type
+      (Maybe Solved)
+      Description
+      Date
+  | TaskMod
+      Int
+      (Maybe Name)
+      (Maybe Hours)
+      (Maybe Project)
+      (Maybe Type)
+      (Maybe Solved)
+      (Maybe Description)
+      (Maybe Date)
   | TaskPrint Int
     deriving (Show)
 
@@ -89,7 +105,12 @@ taskOptsParser = subparser (
                 <> command "show"
                             (info printParser (progDesc "show task information"))
                 <> command "add"
-                     (info addParser (progDesc "add a task")))
+                     (info addParser (progDesc "add a task"))
+                <> command "mod"
+                     (info modParser (progDesc "modify a task")))
+
+printParser :: Parser TaskOpts
+printParser = TaskPrint <$> argument (num :: ReadM Int)  (metavar "TASK_ID")
 
 addParser :: Parser TaskOpts
 addParser = TaskAdd <$> strOption (long "name"
@@ -116,8 +137,29 @@ addParser = TaskAdd <$> strOption (long "name"
                                <> metavar "DATE"
                                <> value "")
 
-printParser :: Parser TaskOpts
-printParser = TaskPrint <$> argument (num :: ReadM Int)  (metavar "TASK_ID")
+modParser :: Parser TaskOpts
+modParser = TaskMod <$> argument (num :: ReadM Int) (metavar "TASK_ID")
+                    <*> optional (strOption (long "name"
+                                            <> short 'n'
+                                            <> metavar "NAME"))
+                    <*> optional (option (num :: ReadM Float) (long "hours"
+                                         <> short 'h'
+                                         <> metavar "HOURS"))
+                    <*> optional (option (num :: ReadM Int) (long "project"
+                                         <> short 'p'
+                                         <> metavar "PROJECT_ID"))
+                    <*> optional (option (num :: ReadM Int) (long "type"
+                                         <> short 't'
+                                         <> metavar "TASK_TYPE_ID"))
+                    <*> optional (option (num :: ReadM Int) (long "resolve"
+                                         <> short 'r'
+                                         <> metavar "RESOLVED_AS_ID"))
+                    <*> optional (strOption (long "description"
+                                         <> short 'd'
+                                         <> metavar "DESCRIPTION"))
+                    <*> optional (strOption (long "when"
+                                         <> short 'w'
+                                         <> metavar "DATE"))
 
 num :: (Read a, Num a) => ReadM a
 num = eitherReader $ \arg -> case reads arg of

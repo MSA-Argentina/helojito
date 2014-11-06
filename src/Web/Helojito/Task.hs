@@ -34,6 +34,7 @@ data TaskList = TaskList [Task] deriving (Show)
 ------------------------------------------------------------------------------
 -- | ID for a `Task` type
 newtype TaskId = TaskId Int deriving (Show, Eq)
+newtype UpdateTaskId = UpdateTaskId Int deriving (Show, Eq)
 data TaskListId = TaskListId deriving (Show, Eq)
 data PostTaskId = PostTaskId deriving (Show, Eq)
 
@@ -41,6 +42,9 @@ data PostTaskId = PostTaskId deriving (Show, Eq)
 -- | Endpoint Instances
 instance Endpoint TaskId Task where
     endpoint (TaskId id') = "tasks/" `append` toText id' `append` "/"
+
+instance Endpoint UpdateTaskId Task where
+    endpoint (UpdateTaskId id') = "tasks/" `append` toText id' `append` "/"
 
 instance Endpoint TaskListId TaskList where
     endpoint _ = "tasks/"

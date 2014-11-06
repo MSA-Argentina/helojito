@@ -8,6 +8,7 @@ module Web.Helojito
          runHelojito
          -- * API Calls
        , postTask
+       , updateTask
        , getTask
        , getTasks
        , getProjects
@@ -19,6 +20,7 @@ module Web.Helojito
        , ConnConf         (..)
        , Task             (..)
        , TaskId           (..)
+       , UpdateTaskId     (..)
        , TaskList         (..)
        , TaskListId
        , TaskType         (..)
@@ -37,6 +39,9 @@ module Web.Helojito
 
 import           Web.Helojito.Types
 import           Web.Helojito.Client (Helojito, runHelojito, ConnConf(..), HelojitoError(..))
+
+updateTask :: UpdateTaskId -> Task -> Helojito Task
+updateTask = putEndpoint
 
 postTask :: Task -> Helojito Task
 postTask = postEndpoint PostTaskId
