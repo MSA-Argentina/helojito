@@ -1,6 +1,7 @@
 module Helojito.Actions (
     listProjects
   , listTasks
+  , calendarTasks
   , listResolutions
   , listTaskTypes
   , showTask
@@ -15,6 +16,7 @@ import           Web.Helojito
 import           Helojito.Printers
 import           Helojito.Util
 import           Text.PrettyPrint    (Doc)
+import           Data.Time.Calendar  (Day)
 
 
 listProjects  :: ConnConf -> IO ()
@@ -46,17 +48,20 @@ modTask i new_task_d c = actionDispatch actions pExtraTask c
                 (fromMaybe d md)
                 (fromMaybe w mw)
 
-listTasks  :: ConnConf -> IO ()
+listTasks :: ConnConf -> IO ()
 listTasks c = actionDispatch getTasks pSimpleTasks c
 
-showTask  :: Int -> ConnConf -> IO ()
+calendarTasks :: Day -> ConnConf -> IO ()
+calendarTasks = undefined
+
+showTask :: Int -> ConnConf -> IO ()
 showTask id' c = actionDispatch actions pExtraTask c
   where
     actions = ((,) <$> ptask <*> pprojects)
     ptask = getTask $ TaskId id'
     pprojects = getProjects
 
-listResolutions  :: ConnConf -> IO ()
+listResolutions :: ConnConf -> IO ()
 listResolutions c = actionDispatch getResolutions pSimpleResolutions c
 
 actionDispatch :: FromJSON a => Helojito a -> (a -> Doc) -> ConnConf -> IO ()

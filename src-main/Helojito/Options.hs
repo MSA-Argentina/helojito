@@ -3,6 +3,7 @@ module Helojito.Options (
   , Options     (..)
   , Command     (..)
   , TaskOpts    (..)
+  , Date
 ) where
 
 import Options.Applicative
@@ -29,6 +30,7 @@ data Command =
 
 data TaskOpts =
     TaskList
+  | TaskCalendar (Maybe Date)
   | TaskAdd
       Name
       Hours
@@ -102,6 +104,8 @@ taskOptsParser :: Parser TaskOpts
 taskOptsParser = subparser (
                    command "list"
                             (info (pure TaskList) (progDesc "list tasks"))
+                <> command "calendar"
+                            (info calParser (progDesc "list tasks in a calendar"))
                 <> command "show"
                             (info printParser (progDesc "show task information"))
                 <> command "add"
@@ -111,6 +115,9 @@ taskOptsParser = subparser (
 
 printParser :: Parser TaskOpts
 printParser = TaskPrint <$> argument (num :: ReadM Int)  (metavar "TASK_ID")
+
+calParser :: Parser TaskOpts
+calParser = TaskCalendar <$> optional (strArgument (metavar "TASK_ID"))
 
 addParser :: Parser TaskOpts
 addParser = TaskAdd <$> strOption (long "name"

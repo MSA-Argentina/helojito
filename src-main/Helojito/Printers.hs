@@ -12,9 +12,8 @@ pSimpleTasks (TaskList ts) = vcat $ map pSimpleTask ts
 pSimpleTask :: Task -> Doc
 pSimpleTask Task { taskId=TaskId id'
                  , taskHours=hours
-                 , taskDate=date
                  , taskName=name } = int id' <+> char '-' <+> toDoc name <>
-                                         char ':' <+> float hours <> text "hs -" <+> toDoc date
+                                         colon <+> float hours <> text "hs"
 
 pExtraTask :: (Task, ProjectList) -> Doc
 pExtraTask (Task { taskId=TaskId id'
