@@ -52,7 +52,10 @@ listTasks :: ConnConf -> IO ()
 listTasks c = actionDispatch getTasks pSimpleTasks c
 
 calendarTasks :: Day -> ConnConf -> IO ()
-calendarTasks = undefined
+calendarTasks day c = actionDispatch actions pSimpleTasks2 c
+  where
+    actions = mapM getTaskDay week
+    week = TaskDayId <$> textWeek day
 
 showTask :: Int -> ConnConf -> IO ()
 showTask id' c = actionDispatch actions pExtraTask c

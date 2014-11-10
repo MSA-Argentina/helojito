@@ -10,6 +10,7 @@ module Web.Helojito
        , postTask
        , updateTask
        , getTask
+       , getTaskDay
        , getTasks
        , getProjects
        , getTaskTypes
@@ -20,6 +21,7 @@ module Web.Helojito
        , ConnConf         (..)
        , Task             (..)
        , TaskId           (..)
+       , TaskDayId           (..)
        , UpdateTaskId     (..)
        , TaskList         (..)
        , TaskListId
@@ -48,6 +50,9 @@ postTask = postEndpoint PostTaskId
 
 getTask :: TaskId -> Helojito Task
 getTask = getEndpoint
+
+getTaskDay :: TaskDayId -> Helojito TaskList
+getTaskDay = getEndpoint
 
 getTasks :: Helojito TaskList
 getTasks = getEndpoint TaskListId

@@ -9,6 +9,9 @@ import           Helojito.Util   (toDoc)
 pSimpleTasks :: TaskList -> Doc
 pSimpleTasks (TaskList ts) = vcat $ map pSimpleTask ts
 
+pSimpleTasks2 :: [TaskList] -> Doc
+pSimpleTasks2 xs = vcat $ map pSimpleTasks xs
+
 pSimpleTask :: Task -> Doc
 pSimpleTask Task { taskId=TaskId id'
                  , taskHours=hours
