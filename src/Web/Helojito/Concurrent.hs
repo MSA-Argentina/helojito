@@ -21,7 +21,7 @@ import Control.Monad.Trans.Free
 import Control.Monad.Trans.Reader
 import Data.Functor.Identity
 
--- | A Concurrent Transformer. Stolen from https://github.com/jwiegley/concurrent
+-- | A Concurrent Transformer. Stolen from https://github.com/jwiegley/functors
 newtype ConcurrentT m a = ConcurrentT { getConcurrentT :: FreeT Identity m a }
 
 -- | Run concurrently:
