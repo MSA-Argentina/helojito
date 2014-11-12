@@ -73,3 +73,6 @@ List projects, resolutions and types:
 Desirable because GHC may be too fast for official Ubuntu repositories:
 
 http://haskell-lang.org/downloads/linux
+
+### Thanks
+Inspired in dmjio's [hackernews](https://github.com/dmjio/hackernews/) API.
