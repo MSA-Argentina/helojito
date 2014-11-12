@@ -34,6 +34,27 @@ Listing tasks:
 81 - another bar: 4.5hs - 2014-10-15
 ```
 
+```
+> helojito task week
+|Monday  |Tuesday |Wednesd |Thursda |Friday  |Saturda |Sunday
+|0.0hs   |0.0hs   |0.0hs   |6.0hs   |2.0hs   |0.0hs   |0.0hs
+                           |10      |4
+                           |8
+                           |9
+                           |7
+                           |5
+```
+
+```
+> helojito task day
+Wednesday
+----------
+Total: 4.5hs
+----------
+15 - ugh: 4.0hs
+11 - malboro1: 0.5hs
+```
+
 Task details:
 
 ```
