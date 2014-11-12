@@ -12,6 +12,7 @@ module Helojito.Actions (
 import           Control.Applicative
 import           Data.Aeson          (FromJSON)
 import           Data.Maybe          (fromMaybe)
+import           Data.Traversable    (traverse)
 import           Web.Helojito
 import           Helojito.Printers
 import           Helojito.Util
@@ -54,7 +55,7 @@ listTasks c = actionDispatch getTasks pSimpleTasks c
 calendarTasks :: Day -> ConnConf -> IO ()
 calendarTasks day c = actionDispatch actions pSimpleTasks2 c
   where
-    actions = mapM getTaskDay week
+    actions = traverse getTaskDay week
     week = TaskDayId <$> textWeek day
 
 showTask :: Int -> ConnConf -> IO ()

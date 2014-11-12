@@ -26,11 +26,12 @@ import           Data.Monoid                ((<>))
 import           Data.Text                  (Text, unpack)
 import           Network.Wreq
 import           Network.HTTP.Client        (HttpException(..))
+import           Web.Helojito.Concurrent
 
 
 ------------------------------------------------------------------------------
 -- | Core Type
-type Helojito a = EitherT HelojitoError (ReaderT (String, ByteString) IO) a
+type Helojito a = ConcurrentT (EitherT HelojitoError (ReaderT (String, ByteString) IO)) a
 
 ------------------------------------------------------------------------------
 -- | Error Types
@@ -46,14 +47,14 @@ data ConnConf = ConnConf { token :: ByteString
 ------------------------------------------------------------------------------
 -- | Helojito API request method
 runHelojito :: FromJSON a => Helojito a -> ConnConf -> IO (Either HelojitoError a)
-runHelojito requests (ConnConf t u) = flip runReaderT (u, t) $ runEitherT requests
+runHelojito requests (ConnConf t u) = runReaderT (runEitherT $ runConcurrentT requests) (u, t)
 
 ------------------------------------------------------------------------------
 -- | Request Builder for API
 buildHJRequest :: FromJSON a => Bool -> Maybe Value -> Text -> Helojito a
 buildHJRequest put' mjson_data url = do
-    base' <- lift . asks $ fst
-    token' <- lift . asks $ snd
+    base' <- lift . lift . asks $ fst
+    token' <- lift . lift . asks $ snd
     let action = base' ++ unpack url
 
     let opts = defaults & header "Authorization" .~ ["Token " <> token']
@@ -64,11 +65,12 @@ buildHJRequest put' mjson_data url = do
                             True -> putWith opts action json_data
                             False -> postWith opts action json_data
 
-    case er of
-        Left da -> left $ ConnectionError $ handleHttp da
-        Right r -> case eitherDecode (r ^. responseBody) of
-                       Left _ -> left ParseError
-                       Right o -> right o
+    a <- lift $ case er of
+                Left da -> left $ ConnectionError $ handleHttp da
+                Right r -> case eitherDecode (r ^. responseBody) of
+                               Left _ -> left ParseError
+                               Right o -> right o
+    return a
 
 safeIO :: IO a -> Helojito (Either HttpException a)
 safeIO io = liftIO $ try io
