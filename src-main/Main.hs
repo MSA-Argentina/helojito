@@ -21,8 +21,8 @@ main = do
 
     case subcommand opts of
         TaskCommand TaskList -> listTasks con
-        TaskCommand (TaskCalendar (Just d)) -> calendarTasks (toDay d) con
-        TaskCommand (TaskCalendar Nothing) -> calendarTasks today con
+        TaskCommand (TaskWeek md) -> weekTasks (maybe today toDay md) con
+        TaskCommand (TaskDay md) -> dayTasks (maybe today toDay md) con
         TaskCommand (TaskPrint n) -> showTask n con
         TaskCommand args@(TaskAdd {}) -> addTask (taskBuilder args) con
         TaskCommand (TaskMod i n h p t s d w) -> modTask i (pack <$> n, h, H.ProjectId <$> p, t, Just <$> s, pack <$> d, pack <$> w) con

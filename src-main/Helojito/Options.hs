@@ -30,7 +30,8 @@ data Command =
 
 data TaskOpts =
     TaskList
-  | TaskCalendar (Maybe Date)
+  | TaskWeek (Maybe Date)
+  | TaskDay (Maybe Date)
   | TaskAdd
       Name
       Hours
@@ -104,8 +105,10 @@ taskOptsParser :: Parser TaskOpts
 taskOptsParser = subparser (
                    command "list"
                             (info (pure TaskList) (progDesc "list tasks"))
-                <> command "calendar"
-                            (info calParser (progDesc "list tasks in a calendar"))
+                <> command "week"
+                            (info weekParser (progDesc "list week tasks in a calendar"))
+                <> command "day"
+                            (info dayParser (progDesc "list day tasks in a calendar"))
                 <> command "show"
                             (info printParser (progDesc "show task information"))
                 <> command "add"
@@ -116,8 +119,11 @@ taskOptsParser = subparser (
 printParser :: Parser TaskOpts
 printParser = TaskPrint <$> argument (num :: ReadM Int)  (metavar "TASK_ID")
 
-calParser :: Parser TaskOpts
-calParser = TaskCalendar <$> optional (strArgument (metavar "TASK_ID"))
+weekParser :: Parser TaskOpts
+weekParser = TaskWeek <$> optional (strArgument (metavar "DATE"))
+
+dayParser :: Parser TaskOpts
+dayParser = TaskDay <$> optional (strArgument (metavar "DATE"))
 
 addParser :: Parser TaskOpts
 addParser = TaskAdd <$> strOption (long "name"

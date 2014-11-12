@@ -1,16 +1,34 @@
 module Helojito.Printers  where
 
-import           Data.List       (find)
+import           Data.List              (find)
 import           Text.PrettyPrint
+import qualified Text.PrettyPrint.Boxes as B
+import           Text.PrettyPrint.Boxes (Box)
 import           Web.Helojito
-import           Helojito.Util   (toDoc)
+import           Helojito.Util          (toDoc, toDayName)
+import           Data.Time.Calendar     (Day)
 
 
 pSimpleTasks :: TaskList -> Doc
 pSimpleTasks (TaskList ts) = vcat $ map pSimpleTask ts
 
-pSimpleTasks2 :: [TaskList] -> Doc
-pSimpleTasks2 xs = vcat $ map pSimpleTasks xs
+pWeekTaks :: [Day] -> [TaskList] -> Box
+pWeekTaks ds xs = B.hsep 1 B.left colls
+  where
+    colls = map makeCol $ zip ds xs
+    makeCol (d, (TaskList ts)) = B.vcat B.left $ box (toDayName d) : box (total ts ++ "hs") : map (box . tasky) ts
+    box s = B.text "|" B.<> B.alignHoriz B.left colWidth (B.text s)
+    colWidth = 7
+    tasky Task { taskId=TaskId id' } = show id'
+    total = show . sum . map taskHours
+
+pDayTaks :: Day -> TaskList -> Doc
+pDayTaks d (TaskList ts) = vcat $ title : separator : hs : separator : map pSimpleTask ts
+  where
+    separator = hcat . replicate 10 . char $ '-'
+    title = text $ toDayName d
+    hs = text "Total" <> colon <+> total <> text "hs"
+    total = float . sum . map taskHours $ ts
 
 pSimpleTask :: Task -> Doc
 pSimpleTask Task { taskId=TaskId id'

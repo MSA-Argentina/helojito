@@ -20,9 +20,6 @@ exit = exitSuccess
 toDoc :: Text -> Doc
 toDoc = text . unpack
 
-textWeek :: Day -> [Text]
-textWeek = map dayToText . getWeek
-
 dayToText :: Day -> Text
 dayToText = pack . formatTime defaultTimeLocale "%Y-%m-%d"
 
@@ -37,3 +34,6 @@ toDay :: Date -> Day
 toDay s = fromGregorian (fromIntegral y) m d
   where
     [y, m, d] = map read $ split "-" s :: [Int]
+
+toDayName :: Day -> String
+toDayName = formatTime defaultTimeLocale "%A"

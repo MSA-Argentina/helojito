@@ -60,4 +60,5 @@ executable helojito
                      , old-locale   >= 1.0
                      , MissingH     >= 1.2
                      , pretty       >= 1.0
+                     , boxes        >= 0.1
                      , helojito
