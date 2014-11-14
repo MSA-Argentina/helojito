@@ -5,7 +5,7 @@ import           Text.PrettyPrint
 import qualified Text.PrettyPrint.Boxes as B
 import           Text.PrettyPrint.Boxes (Box)
 import           Web.Helojito
-import           Helojito.Util          (toDoc, toDayName)
+import           Helojito.Util
 import           Data.Time.Calendar     (Day)
 
 
@@ -16,7 +16,7 @@ pWeekTaks :: [Day] -> [TaskList] -> Box
 pWeekTaks ds xs = B.hsep 1 B.left colls
   where
     colls = map makeCol $ zip ds xs
-    makeCol (d, (TaskList ts)) = B.vcat B.left $ box (toDayName d) : box (total ts ++ "hs") : map (box . tasky) ts
+    makeCol (d, (TaskList ts)) = B.vcat B.left $ box (toDayName d) : box (toShortDate d) : box (total ts ++ "hs") : map (box . tasky) ts
     box s = B.text "|" B.<> B.alignHoriz B.left colWidth (B.text s)
     colWidth = 7
     tasky Task { taskId=TaskId id' } = show id'
@@ -26,7 +26,7 @@ pDayTaks :: Day -> TaskList -> Doc
 pDayTaks d (TaskList ts) = vcat $ title : separator : hs : separator : map pSimpleTask ts
   where
     separator = hcat . replicate 10 . char $ '-'
-    title = text $ toDayName d
+    title = text (toDayName d) <+> (text $ show d)
     hs = text "Total" <> colon <+> total <> text "hs"
     total = float . sum . map taskHours $ ts
 
