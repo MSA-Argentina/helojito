@@ -3,7 +3,6 @@ module Helojito.Actions (
   , listTasks
   , weekTasks
   , dayTasks
-  , listResolutions
   , listTaskTypes
   , showTask
   , addTask
@@ -50,12 +49,11 @@ modTask i new_task_d c = actionDispatch actions p c
         res <- updateTask (UpdateTaskId i) $ merge task new_task_d
         ps <- getProjects
         return (res, ps)
-    merge (Task i' n h p' t s d w) (mn, mh, mp, mt, ms, md, mw) =
+    merge (Task i' n h p' t d w) (mn, mh, mp, mt, md, mw) =
         Task i' (fromMaybe n mn)
                 (fromMaybe h mh)
                 (fromMaybe p' mp)
                 (fromMaybe t mt)
-                (fromMaybe s ms)
                 (fromMaybe d md)
                 (fromMaybe w mw)
 
@@ -86,11 +84,6 @@ showTask id' c = actionDispatch actions p c
     actions = ((,) <$> ptask <*> pprojects)
     ptask = getTask $ TaskId id'
     pprojects = getProjects
-
-listResolutions :: ConnConf -> IO ()
-listResolutions c = actionDispatch getResolutions p c
-  where
-    p = D.render . pSimpleResolutions
 
 actionDispatch :: FromJSON a => Helojito a -> (a -> String) -> ConnConf -> IO ()
 actionDispatch actions out con = do

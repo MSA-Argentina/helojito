@@ -61,13 +61,6 @@ pSimpleProject :: Project -> Doc
 pSimpleProject Project { projectId=ProjectId id'
                        , projectName=name } = int id' <+> char '-' <+> toDoc name
 
-pSimpleResolutions :: ResolutionList -> Doc
-pSimpleResolutions (ResolutionList ps) = vcat $ map pSimpleResolution ps
-
-pSimpleResolution :: Resolution -> Doc
-pSimpleResolution Resolution { resId=ResolutionId id'
-                             , resName=name } = int id' <+> char '-' <+> toDoc name
-
 pSimpleTaskTypes :: TaskTypeList -> Doc
 pSimpleTaskTypes (TaskTypeList ts) = vcat $ map pSimpleTaskType ts
 

@@ -24,7 +24,6 @@ data Options = Options
 data Command =
     TaskCommand TaskOpts
   | ProjectCommand ProjectOpts
-  | ResCommand ResOpts
   | TaskTypeCommand TaskTypeOpts
     deriving (Show)
 
@@ -37,7 +36,6 @@ data TaskOpts =
       Hours
       Project
       Type
-      (Maybe Solved)
       Description
       Date
   | TaskMod
@@ -46,14 +44,12 @@ data TaskOpts =
       (Maybe Hours)
       (Maybe Project)
       (Maybe Type)
-      (Maybe Solved)
       (Maybe Description)
       (Maybe Date)
   | TaskPrint Int
     deriving (Show)
 
 data ProjectOpts = ProjectList deriving (Show)
-data ResOpts = ResList deriving (Show)
 data TaskTypeOpts = TaskTypeList deriving (Show)
 
 getOptions :: IO Options
@@ -70,18 +66,13 @@ optsParser = Options
        <> command "project"
               (info projectParser (progDesc "operate on projects"))
        <> command "type"
-              (info typeParser (progDesc "operate on task types"))
-       <> command "resolution"
-              (info resParser (progDesc "operate on resolution types")))
+              (info typeParser (progDesc "operate on task types")))
 
 taskParser :: Parser Command
 taskParser = TaskCommand <$> taskOptsParser
 
 projectParser :: Parser Command
 projectParser = ProjectCommand <$> projectOptsParser
-
-resParser :: Parser Command
-resParser = ResCommand <$> resOptsParser
 
 typeParser :: Parser Command
 typeParser = TaskTypeCommand <$> typeOptsParser
@@ -90,11 +81,6 @@ projectOptsParser :: Parser ProjectOpts
 projectOptsParser = subparser (
                       command "list"
                                (info (pure ProjectList) (progDesc "list elements")))
-
-resOptsParser :: Parser ResOpts
-resOptsParser = subparser (
-                      command "list"
-                               (info (pure ResList) (progDesc "list elements")))
 
 typeOptsParser :: Parser TaskTypeOpts
 typeOptsParser = subparser (
@@ -138,9 +124,6 @@ addParser = TaskAdd <$> strOption (long "name"
                     <*> option (num :: ReadM Int) (long "type"
                                <> short 't'
                                <> metavar "TASK_TYPE_ID")
-                    <*> optional (option (num :: ReadM Int) (long "resolve"
-                                         <> short 'r'
-                                         <> metavar "RESOLVED_AS_ID"))
                     <*> strOption (long "description"
                                <> short 'd'
                                <> metavar "DESCRIPTION"
@@ -164,9 +147,6 @@ modParser = TaskMod <$> argument (num :: ReadM Int) (metavar "TASK_ID")
                     <*> optional (option (num :: ReadM Int) (long "type"
                                          <> short 't'
                                          <> metavar "TASK_TYPE_ID"))
-                    <*> optional (option (num :: ReadM Int) (long "resolve"
-                                         <> short 'r'
-                                         <> metavar "RESOLVED_AS_ID"))
                     <*> optional (strOption (long "description"
                                          <> short 'd'
                                          <> metavar "DESCRIPTION"))

@@ -24,7 +24,6 @@ data Task = Task {
   , taskHours :: Float
   , taskProject :: ProjectId
   , taskType :: Int
-  , taskResolution :: Maybe Int
   , taskDescription :: Text
   , taskDate :: Text
   } deriving (Show)
@@ -65,7 +64,6 @@ instance FromJSON Task where
            <*> o .: "total_hours"
            <*> (ProjectId <$> o .: "project")
            <*> o .: "task_type"
-           <*> o .: "resolved_as"
            <*> o .: "description"
            <*> o .: "date"
   parseJSON _ = mzero
@@ -74,13 +72,11 @@ instance FromJSON TaskList where
   parseJSON = fmap TaskList . parseJSON
 
 instance ToJSON Task where
-   toJSON (Task _ n h (ProjectId p) t s d w) =
+   toJSON (Task _ n h (ProjectId p) t d w) =
        object $ [ "name" .= n
                 , "total_hours" .= h
                 , "project" .= p
                 , "task_type" .= t
-                , "task_type" .= t
-                , "resolved_as" .= s
                 , "description" .= d
                 ] ++ case null w of
                          True -> []
