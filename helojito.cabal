@@ -61,4 +61,5 @@ executable helojito
                      , MissingH     >= 1.2
                      , pretty       >= 1.0
                      , boxes        >= 0.1
+                     , network      >= 2.6
                      , helojito

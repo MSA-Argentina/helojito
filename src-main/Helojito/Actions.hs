@@ -18,6 +18,8 @@ import           Web.Helojito
 import           Helojito.Printers
 import           Helojito.Util
 import           Data.Time.Calendar     (Day)
+import           Network                (withSocketsDo)
+
 import qualified Text.PrettyPrint       as D (render)
 import qualified Text.PrettyPrint.Boxes as B (render)
 
@@ -92,7 +94,7 @@ listResolutions c = actionDispatch getResolutions p c
 
 actionDispatch :: FromJSON a => Helojito a -> (a -> String) -> ConnConf -> IO ()
 actionDispatch actions out con = do
-    resp <- runHelojito actions con
+    resp <- withSocketsDo $ runHelojito actions con
     case resp of
         Left err -> handleError err >> die
         Right stuff -> putStrLn (out stuff) >> exit
