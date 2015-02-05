@@ -16,6 +16,7 @@ type Type = Int
 type Solved = Int
 type Description = String
 type Date = String
+type Hash = String
 
 data Options = Options
     { subcommand :: Command }
@@ -46,6 +47,12 @@ data TaskOpts =
       (Maybe Type)
       (Maybe Description)
       (Maybe Date)
+  | TaskCommit
+      Hash
+      Hours
+      Project
+      Type
+      Description
   | TaskPrint Int
     deriving (Show)
 
@@ -100,7 +107,9 @@ taskOptsParser = subparser (
                 <> command "add"
                      (info addParser (progDesc "add a task"))
                 <> command "mod"
-                     (info modParser (progDesc "modify a task")))
+                     (info modParser (progDesc "modify a task"))
+                <> command "commit"
+                     (info commitParser (progDesc "add a task from a commit")))
 
 printParser :: Parser TaskOpts
 printParser = TaskPrint <$> argument (num :: ReadM Int)  (metavar "TASK_ID")
@@ -153,6 +162,22 @@ modParser = TaskMod <$> argument (num :: ReadM Int) (metavar "TASK_ID")
                     <*> optional (strOption (long "when"
                                          <> short 'w'
                                          <> metavar "DATE"))
+
+commitParser :: Parser TaskOpts
+commitParser = TaskCommit <$> strArgument (metavar "HASH")
+                          <*> option (num :: ReadM Float) (long "hours"
+                                     <> short 'h'
+                                     <> metavar "HOURS")
+                          <*> option (num :: ReadM Int) (long "project"
+                                     <> short 'p'
+                                     <> metavar "PROJECT_ID")
+                          <*> option (num :: ReadM Int) (long "type"
+                                     <> short 't'
+                                     <> metavar "TASK_TYPE_ID")
+                          <*> strOption (long "description"
+                                     <> short 'd'
+                                     <> metavar "DESCRIPTION"
+                                     <> value "")
 
 num :: (Read a, Num a) => ReadM a
 num = eitherReader $ \arg -> case reads arg of

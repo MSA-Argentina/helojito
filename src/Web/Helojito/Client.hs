@@ -55,8 +55,8 @@ buildHJRequest :: FromJSON a => Bool -> Maybe Value -> Text -> Helojito a
 buildHJRequest put' mjson_data url = do
     base' <- lift . lift . asks $ fst
     token' <- lift . lift . asks $ snd
-    let action = base' ++ unpack url
 
+    let action = base' ++ unpack url
     let opts = defaults & header "Authorization" .~ ["Token " <> token']
 
     er <- safeIO $ case mjson_data of
@@ -65,16 +65,14 @@ buildHJRequest put' mjson_data url = do
                             True -> putWith opts action json_data
                             False -> postWith opts action json_data
 
-    a <- lift $ case er of
-                Left da -> left $ ConnectionError $ handleHttp da
-                Right r -> case eitherDecode (r ^. responseBody) of
-                               Left _ -> left ParseError
-                               Right o -> right o
-    return a
+    lift $ case er of
+           Left da -> left $ ConnectionError $ handleHttp da
+           Right r -> case eitherDecode (r ^. responseBody) of
+                          Left _ -> left ParseError
+                          Right o -> right o
 
 safeIO :: IO a -> Helojito (Either HttpException a)
 safeIO io = liftIO $ try io
-
 
 handleHttp :: HttpException -> String
 handleHttp (StatusCodeException status response _) = show status ++ " - " ++ B.unpack (fromMaybe "" $ lookup "X-Response-Body-Start" response)
