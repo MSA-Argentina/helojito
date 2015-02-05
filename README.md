@@ -73,6 +73,12 @@ Adding a task:
 > helojito task add -n "title baz" -t 2.5 -p 1 -y 1 -r 1 -d "description something" -w "2014-04-31"
 ```
 
+Adding a task from a commit. Will extract it's date and message (as name) of the task:
+
+```
+> helojito task commit -h 4 -t1 -p1 dffae1e
+```
+
 Updating a task:
 
 ```
