@@ -6,12 +6,11 @@ Helojito
 git clone this repo and then simply:
 
 ```
+cabal sandbox init
 cabal install
 ```
 
 The binary will end up in your `.cabal/bin/` directory.
-
-Or you can always use a sandbox with `cabal sandbox init` before installing.
 
 # Configuration
 You'll need a file `~/.helojito` like this:
