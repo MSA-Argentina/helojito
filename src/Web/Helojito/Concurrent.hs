@@ -35,11 +35,10 @@ instance (MonadBase b m, Functor f) => MonadBase b (FreeT f m) where
 
 instance (MonadBaseControl b m, Functor f)
          => MonadBaseControl b (FreeT f m) where
-    newtype StM (FreeT f m) a = StMFreeT (StM m (FreeF f a (FreeT f m a)))
+    type StM (FreeT f m) a = StM m (FreeF f a (FreeT f m a))
     liftBaseWith f =
-        FreeT $ liftM Pure $ liftBaseWith $ \runInBase -> f $ \k ->
-            liftM StMFreeT $ runInBase $ runFreeT k
-    restoreM (StMFreeT m) = FreeT . restoreM $ m
+        FreeT $ liftM Pure $ liftBaseWith $ \runInBase -> f $ \k -> runInBase $ runFreeT k
+    restoreM = FreeT . restoreM
 
 instance Monad m => Functor (ConcurrentT m) where
     fmap f (ConcurrentT m) = ConcurrentT (fmap f m)
@@ -69,11 +68,10 @@ instance (MonadBaseControl IO m, MonadBase IO m)
     liftBase = liftBaseDefault
 
 instance MonadBaseControl IO m => MonadBaseControl IO (ConcurrentT m) where
-    newtype StM (ConcurrentT m) a = StMConcurrentT (StM (FreeT Identity m) a)
+    type StM (ConcurrentT m) a = StM (FreeT Identity m) a
     liftBaseWith f =
-        ConcurrentT $ liftBaseWith $ \runInBase -> f $ \k ->
-            liftM StMConcurrentT $ runInBase $ getConcurrentT k
-    restoreM (StMConcurrentT m) = ConcurrentT . restoreM $ m
+        ConcurrentT $ liftBaseWith $ \runInBase -> f $ \k -> runInBase $ getConcurrentT k
+    restoreM = ConcurrentT . restoreM
 
 newtype ConcurrentPoolT s m a = ConcurrentPoolT
     { getConcurrentPoolT :: ReaderT (TVar Int) (ConcurrentT m) a }
@@ -119,9 +117,7 @@ instance (MonadBaseControl IO m, MonadBase IO m, MonadIO m)
 
 instance (MonadBaseControl IO m, MonadIO m)
          => MonadBaseControl IO (ConcurrentPoolT s m) where
-    newtype StM (ConcurrentPoolT s m) a =
-        StMConcurrentPoolT (StM (ReaderT (TVar Int) (ConcurrentT m)) a)
+    type StM (ConcurrentPoolT s m) a = StM (ReaderT (TVar Int) (ConcurrentT m)) a
     liftBaseWith f =
-        ConcurrentPoolT $ liftBaseWith $ \runInBase -> f $ \k ->
-            liftM StMConcurrentPoolT $ runInBase $ getConcurrentPoolT k
-    restoreM (StMConcurrentPoolT m) = ConcurrentPoolT . restoreM $ m
+        ConcurrentPoolT $ liftBaseWith $ \runInBase -> f $ \k -> runInBase $ getConcurrentPoolT k
+    restoreM = ConcurrentPoolT . restoreM
