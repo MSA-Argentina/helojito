@@ -20,7 +20,6 @@ library
                      , Web.Helojito.Client
                      , Web.Helojito.Task
                      , Web.Helojito.TaskType
-                     , Web.Helojito.Resolution
                      , Web.Helojito.Project
                      , Web.Helojito.Util
                      , Web.Helojito.Endpoint

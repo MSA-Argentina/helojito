@@ -14,7 +14,6 @@ module Web.Helojito
        , getTasks
        , getProjects
        , getTaskTypes
-       , getResolutions
          -- * Types
        , Helojito
        , HelojitoError    (..)
@@ -33,10 +32,6 @@ module Web.Helojito
        , ProjectId        (..)
        , ProjectList      (..)
        , ProjectListId
-       , Resolution       (..)
-       , ResolutionId     (..)
-       , ResolutionList   (..)
-       , ResolutionListId
        ) where
 
 import           Web.Helojito.Types
@@ -62,6 +57,3 @@ getTaskTypes = getEndpoint TaskTypeListId
 
 getProjects :: Helojito ProjectList
 getProjects = getEndpoint ProjectListId
-
-getResolutions :: Helojito ResolutionList
-getResolutions = getEndpoint ResolutionListId
