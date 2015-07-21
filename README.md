@@ -12,6 +12,11 @@ cabal install
 
 The binary will end up in your `.cabal/bin/` directory.
 
+Don't forget to install this system libraries too:
+
+* libssl-dev
+* libicu-dev
+
 # Configuration
 You'll need a file `~/.helojito` like this:
 
