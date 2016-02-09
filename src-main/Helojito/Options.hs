@@ -13,7 +13,6 @@ type Name = String
 type Hours = Float
 type Project = Int
 type Type = Int
-type Solved = Int
 type Description = String
 type Date = String
 type Hash = String

@@ -7,7 +7,6 @@
 module Web.Helojito.Task where
 
 import           Prelude                 hiding (null)
-import           Control.Applicative     ((<$>), (<*>))
 import           Control.Monad           (MonadPlus (mzero))
 import           Data.Aeson
 import           Data.Text               (Text, append, null)

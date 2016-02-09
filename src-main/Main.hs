@@ -1,6 +1,5 @@
 module Main where
 
-import           Control.Applicative
 import           Data.Text           (pack, unpack)
 import           Data.Text.Encoding  (encodeUtf8)
 import           Data.Time.Clock     (getCurrentTime, utctDay)

@@ -9,10 +9,8 @@ module Helojito.Actions (
   , modTask
 ) where
 
-import           Control.Applicative
 import           Data.Aeson             (FromJSON)
 import           Data.Maybe             (fromMaybe)
-import           Data.Traversable       (traverse)
 import           Web.Helojito
 import           Helojito.Printers
 import           Helojito.Util

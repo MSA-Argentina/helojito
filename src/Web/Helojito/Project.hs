@@ -6,7 +6,6 @@
 -- Portability : POSIX
 module Web.Helojito.Project where
 
-import           Control.Applicative     ((<$>), (<*>))
 import           Control.Monad           (MonadPlus (mzero))
 import           Data.Aeson              (FromJSON (parseJSON), Value (Object), (.:))
 import           Data.Text               (Text, append)

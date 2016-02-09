@@ -49,6 +49,12 @@ executable helojito
   ghc-options:         -Wall -O2 -threaded
   --ld-options:          -static -pthread
   default-language:    Haskell2010
+  other-modules:       Helojito.Actions
+                     , Helojito.Config
+                     , Helojito.Git
+                     , Helojito.Options
+                     , Helojito.Printers
+                     , Helojito.Util
   build-depends:       base         >= 4.7 && <5
                      , directory
                      , optparse-applicative

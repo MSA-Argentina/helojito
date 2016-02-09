@@ -5,7 +5,6 @@ import           Text.PrettyPrint   (Doc, text)
 import           Helojito.Options   (Date)
 import           System.Exit
 import           Data.String.Utils  (split)
-import           System.Locale
 import           Data.Time.Format
 import           Data.Time.Calendar
 import           Data.Time.Calendar.OrdinalDate
