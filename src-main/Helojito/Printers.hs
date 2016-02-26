@@ -12,18 +12,35 @@ import           Data.Time.Calendar     (Day)
 pSimpleTasks :: TaskList -> Doc
 pSimpleTasks (TaskList ts) = vcat $ map pSimpleTask ts
 
-pWeekTaks :: [Day] -> [TaskList] -> Box
-pWeekTaks ds xs = B.hsep 1 B.left colls
+pWeekTasks :: [Day] -> [TaskList] -> Box
+pWeekTasks ds xs = B.hsep 1 B.left colls
   where
     colls = map makeCol $ zip ds xs
-    makeCol (d, (TaskList ts)) = B.vcat B.left $ box (toDayName d) : box (toShortDate d) : box (total ts ++ "hs") : map (box . tasky) ts
-    box s = B.text "|" B.<> B.alignHoriz B.left colWidth (B.text s)
+    box s = B.text "\9474" B.<> B.alignHoriz B.left colWidth (B.text s)
     colWidth = 7
     tasky Task { taskId=TaskId id' } = show id'
     total = show . sum . map taskHours
+    makeCol (d, (TaskList ts)) = B.vcat B.left $ box (toDayName d) :
+                                                 box (toShortDate d) :
+                                                 box (total ts ++ "hs") :
+                                                 map (box . tasky) ts
 
-pDayTaks :: Day -> TaskList -> Doc
-pDayTaks d (TaskList ts) = vcat $ title : separator : hs : separator : map pSimpleTask ts
+pMonthTasks :: [Day] -> [TaskList] -> Box
+pMonthTasks ds xs = B.text ("Total: " ++ (show $ full xs)) B.// month
+  where
+    month = B.alignHoriz B.right 41 w1 B.// B.vcat B.left ws
+    (w1:ws) = weeks
+    weeks = map (B.hsep 1 B.left) week_boxes
+    week_boxes = map (map box) weeks_l
+    weeks_l = chunkLeftWhen (isSunday . fst) $ zip ds xs
+    total = sum . map taskHours
+    full = sum . map (\(TaskList ts) -> total ts)
+    box (d, TaskList ts) = B.text (head (toDayName d) : replicate 4 '\9472') B.//
+                           (B.text "\9474" B.<> B.alignHoriz B.left 4 (B.text . show $ total ts))
+
+
+pDayTasks :: Day -> TaskList -> Doc
+pDayTasks d (TaskList ts) = vcat $ title : separator : hs : separator : map pSimpleTask ts
   where
     separator = hcat . replicate 10 . char $ '-'
     title = text (toDayName d) <+> (text $ show d)

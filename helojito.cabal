@@ -70,4 +70,5 @@ executable helojito
                      , gitlib
                      , gitlib-libgit2
                      , shelly
+                     , split
                      , helojito

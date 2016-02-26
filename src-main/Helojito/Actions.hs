@@ -1,8 +1,9 @@
 module Helojito.Actions (
     listProjects
   , listTasks
-  , weekTasks
   , dayTasks
+  , weekTasks
+  , monthTasks
   , listTaskTypes
   , showTask
   , addTask
@@ -60,20 +61,28 @@ listTasks c = actionDispatch getTasks p c
   where
     p = D.render . pSimpleTasks
 
+dayTasks :: Day -> ConnConf -> IO ()
+dayTasks day c = actionDispatch actions p c
+  where
+    actions = getTaskDay id'
+    id' = TaskDayId . dayToText $ day
+    p = D.render . pDayTasks day
+
 weekTasks :: Day -> ConnConf -> IO ()
 weekTasks day c = actionDispatch actions p c
   where
     actions = traverse getTaskDay ids
     ids = map (TaskDayId . dayToText) week
     week = getWeek day
-    p = B.render . pWeekTaks week
+    p = B.render . pWeekTasks week
 
-dayTasks :: Day -> ConnConf -> IO ()
-dayTasks day c = actionDispatch actions p c
+monthTasks :: Day -> ConnConf -> IO ()
+monthTasks day c = actionDispatch actions p c
   where
-    actions = getTaskDay id'
-    id' = TaskDayId . dayToText $ day
-    p = D.render . pDayTaks day
+    actions = traverse getTaskDay ids
+    ids = map (TaskDayId . dayToText) month
+    month = getMonth day
+    p = B.render . pMonthTasks month
 
 showTask :: Int -> ConnConf -> IO ()
 showTask id' c = actionDispatch actions p c
