@@ -2,7 +2,7 @@ module Main where
 
 import           Data.Text           (pack, unpack)
 import           Data.Text.Encoding  (encodeUtf8)
-import           Data.Time.Clock     (getCurrentTime, utctDay)
+import           Data.Time.LocalTime (getZonedTime, localDay, zonedTimeToLocalTime)
 import           Helojito.Actions
 import           Helojito.Options
 import           Helojito.Config
@@ -15,7 +15,7 @@ main :: IO ()
 main = do
     conf <- readConf
     opts <- getOptions
-    today <- utctDay <$> getCurrentTime
+    today <- localDay . zonedTimeToLocalTime <$> getZonedTime
 
     let con = let (Config t u) = conf in H.ConnConf (encodeUtf8 t) (unpack u)
 
