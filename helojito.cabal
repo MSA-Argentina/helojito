@@ -13,8 +13,7 @@ cabal-version:       >=1.10
 
 
 library
-  ghc-options:         -Wall -O2 -threaded
-  --ld-options:          -static -pthread
+  ghc-options:         -Wall -O2
   exposed-modules:     Web.Helojito
   other-modules:       Web.Helojito.Types
                      , Web.Helojito.Client
@@ -47,7 +46,6 @@ executable helojito
   main-is:             Main.hs
   hs-source-dirs:      src-main
   ghc-options:         -Wall -O2 -threaded
-  --ld-options:          -static -pthread
   default-language:    Haskell2010
   other-modules:       Helojito.Actions
                      , Helojito.Config

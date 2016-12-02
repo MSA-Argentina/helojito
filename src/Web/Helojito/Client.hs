@@ -37,7 +37,7 @@ type Helojito a = ConcurrentT (EitherT HelojitoError (ReaderT (String, ByteStrin
 -- | Error Types
 data HelojitoError =
     ConnectionError String
-  | ParseError
+  | ParseError String
   | NotFound
   deriving (Show)
 
@@ -59,22 +59,22 @@ buildHJRequest put' mjson_data url = do
     let action = base' ++ unpack url
     let opts = defaults & header "Authorization" .~ ["Token " <> token']
 
-    er <- safeIO $ case mjson_data of
+    res <- safeIO $ case mjson_data of
         Nothing -> getWith opts action
         Just json_data -> case put' of
                             True -> putWith opts action json_data
                             False -> postWith opts action json_data
 
-    lift $ case er of
-           Left da -> left $ ConnectionError $ handleHttp da
+    lift $ case res of
+           Left da -> left $ ConnectionError (handleHttpErr da)
            Right r -> case eitherDecode (r ^. responseBody) of
-                          Left _ -> left ParseError
+                          Left e -> left $ ParseError e
                           Right o -> right o
 
 safeIO :: IO a -> Helojito (Either HttpException a)
 safeIO io = liftIO $ try io
 
-handleHttp :: HttpException -> String
-handleHttp (StatusCodeException status response _) = show status ++ " - " ++ B.unpack (fromMaybe "" $ lookup "X-Response-Body-Start" response)
-handleHttp (FailedConnectionException2 host port _ some) = "Connection refused with " ++ host ++ ":" ++ show port ++ ", is the server running? Extra: " ++ show some
-handleHttp e = show e
+handleHttpErr :: HttpException -> String
+handleHttpErr (StatusCodeException status response _) = show status ++ " - " ++ B.unpack (fromMaybe "" $ lookup "X-Response-Body-Start" response)
+handleHttpErr (FailedConnectionException2 host port _ some) = "Connection refused with " ++ host ++ ":" ++ show port ++ ", is the server running? Extra: " ++ show some
+handleHttpErr e = show e
