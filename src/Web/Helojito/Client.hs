@@ -46,7 +46,7 @@ data ConnConf = ConnConf { token :: ByteString
 
 ------------------------------------------------------------------------------
 -- | Helojito API request method
-runHelojito :: FromJSON a => Helojito a -> ConnConf -> IO (Either HelojitoError a)
+runHelojito :: Helojito a -> ConnConf -> IO (Either HelojitoError a)
 runHelojito requests (ConnConf t u) = runReaderT (runEitherT $ runConcurrentT requests) (u, t)
 
 ------------------------------------------------------------------------------

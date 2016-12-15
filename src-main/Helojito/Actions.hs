@@ -10,7 +10,6 @@ module Helojito.Actions (
   , modTask
 ) where
 
-import           Data.Aeson             (FromJSON)
 import           Data.Maybe             (fromMaybe)
 import           Web.Helojito
 import           Helojito.Printers
@@ -92,7 +91,7 @@ showTask id' c = actionDispatch actions p c
     ptask = getTask $ TaskId id'
     pprojects = getProjects
 
-actionDispatch :: FromJSON a => Helojito a -> (a -> String) -> ConnConf -> IO ()
+actionDispatch :: Helojito a -> (a -> String) -> ConnConf -> IO ()
 actionDispatch actions out con = do
     resp <- withSocketsDo $ runHelojito actions con
     case resp of
