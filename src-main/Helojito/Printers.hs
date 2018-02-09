@@ -6,7 +6,7 @@ import qualified Text.PrettyPrint.Boxes as B
 import           Text.PrettyPrint.Boxes (Box)
 import           Web.Helojito
 import           Helojito.Util
-import           Data.Time.Calendar     (Day)
+import           Data.Time.Calendar     (Day, fromGregorian)
 
 
 pSimpleTasks :: TaskList -> Doc
@@ -26,17 +26,22 @@ pWeekTasks ds xs = B.hsep 1 B.left colls
                                                  map (box . tasky) ts
 
 pMonthTasks :: [Day] -> [TaskList] -> Box
-pMonthTasks ds xs = B.text ("Total: " ++ (show $ full xs)) B.// month
+pMonthTasks ds xs = B.text ("Total: " ++ (show $ full xs)) B.//
+                    days_b B.//
+                    month_b
   where
-    month = B.alignHoriz B.right 41 w1 B.// B.vcat B.left ws
+    days = [take 3 . toDayName $ fromGregorian 2018 1 (7 + x) | x <- [0..6]]
+    days_b = B.hsep 3 B.left (map B.text days)
+    month_b = B.alignHoriz B.right 41 w1 B.// B.vcat B.left ws
     (w1:ws) = weeks
     weeks = map (B.hsep 1 B.left) week_boxes
     week_boxes = map (map box) weeks_l
     weeks_l = chunkLeftWhen (isSunday . fst) $ zip ds xs
     total = sum . map taskHours
     full = sum . map (\(TaskList ts) -> total ts)
-    box (d, TaskList ts) = B.text (head (toDayName d) : replicate 4 '\9472') B.//
-                           (B.text "\9474" B.<> B.alignHoriz B.left 4 (B.text . show $ total ts))
+    box (d, TaskList ts) = B.text (toDayNumber d ++ replicate 3 '\9472') B.//
+                           (B.text "\9474" B.<>
+                            B.alignHoriz B.left 4 (B.text . show $ total ts))
 
 
 pDayTasks :: Day -> TaskList -> Doc

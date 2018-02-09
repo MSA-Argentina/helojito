@@ -6,6 +6,7 @@ module Helojito.Options (
   , Date
 ) where
 
+import Data.Monoid
 import Options.Applicative
 
 

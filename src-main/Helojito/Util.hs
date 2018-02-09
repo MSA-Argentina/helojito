@@ -44,6 +44,9 @@ toDay s = fromGregorian (fromIntegral y) m d
 toDayName :: Day -> String
 toDayName = formatTime defaultTimeLocale "%A"
 
+toDayNumber :: Day -> String
+toDayNumber = formatTime defaultTimeLocale "%d"
+
 toShortDate :: Day -> String
 toShortDate = formatTime defaultTimeLocale "%m-%d"
 

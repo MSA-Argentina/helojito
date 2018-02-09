@@ -13,7 +13,6 @@ module Web.Helojito.Client
 
 import           Data.Aeson                 hiding (Result)
 import           Data.ByteString            (ByteString)
-import qualified Data.ByteString.Char8      as B (unpack)
 import           Control.Monad.Trans.Either
 import           Control.Exception          (try)
 import           Control.Lens
@@ -21,11 +20,10 @@ import           Control.Lens
 import           Control.Monad.IO.Class     (liftIO)
 import           Control.Monad.Trans.Class  (lift)
 import           Control.Monad.Trans.Reader (ReaderT, asks, runReaderT)
-import           Data.Maybe                 (fromMaybe)
 import           Data.Monoid                ((<>))
 import           Data.Text                  (Text, unpack)
-import           Network.Wreq
 import           Network.HTTP.Client        (HttpException(..))
+import           Network.Wreq
 import           Web.Helojito.Concurrent
 
 
@@ -66,15 +64,10 @@ buildHJRequest put' mjson_data url = do
                             False -> postWith opts action json_data
 
     lift $ case res of
-           Left da -> left $ ConnectionError (handleHttpErr da)
+           Left da -> left $ ConnectionError (show da)
            Right r -> case eitherDecode (r ^. responseBody) of
                           Left e -> left $ ParseError e
                           Right o -> right o
 
 safeIO :: IO a -> Helojito (Either HttpException a)
 safeIO io = liftIO $ try io
-
-handleHttpErr :: HttpException -> String
-handleHttpErr (StatusCodeException status response _) = show status ++ " - " ++ B.unpack (fromMaybe "" $ lookup "X-Response-Body-Start" response)
-handleHttpErr (FailedConnectionException2 host port _ some) = "Connection refused with " ++ host ++ ":" ++ show port ++ ", is the server running? Extra: " ++ show some
-handleHttpErr e = show e
